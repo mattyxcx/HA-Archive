@@ -1,10 +1,6 @@
 # The Hidden Academy
 
 ---
-
-August 1st 2021 - [Next Release Date]
-
----
 ![Banner](https://cdn.discordapp.com/attachments/601130066407194634/907622048329789490/unknown.png)
 
 ## Notes
