@@ -1,4 +1,4 @@
-local __externalData = require(script.Parent.Data)
+local DataHandler = require(script.Parent.DataHandler)
 local serverSettings = require(game.ReplicatedStorage.Modules.Library.Settings)
 
 if serverSettings["Server Information"]["Name"] == "" then repeat wait() until serverSettings["Server Information"]["Name"] ~= nil end
@@ -25,7 +25,7 @@ function process(baseDict)
 				}
 			}
 		}
-		__externalData.Set("active-servers","all",baseDict)
+		DataHandler.Set("active-servers","all",baseDict)
 		prevValues = {ServerPlayers,ServerStaff}
 	elseif baseDict["error"] ~= nil then
 		print("error",unpack(baseDict["error"]))
@@ -36,7 +36,7 @@ function close(baseDict)
 	if baseDict["error"] == nil then
 		if baseDict["fields"] == nil then baseDict["fields"] = {} end
 		baseDict["fields"][JobId] = nil
-		__externalData.Set("active-servers","all",baseDict)
+		DataHandler.Set("active-servers","all",baseDict)
 	elseif baseDict["error"] ~= nil then
 		print("error",baseDict["error"])
 	end
@@ -54,13 +54,13 @@ end
 
 game:BindToClose(function()
 	shuttingDown = true
-	close(__externalData.Get("active-servers","all"))
+	close(DataHandler.Get("active-servers","all"))
 end)
 
 while true do
 	if (tick() - lastupdate >= 60) and shuttingDown ~= true and {serverSettings["Server Information"]["Players"],serverSettings["Server Information"]["Staff"]} ~= prevValues then
 		lastupdate = tick()
-		local dataGot = __externalData.Get("active-servers","all")
+		local dataGot = DataHandler.Get("active-servers","all")
 		process(dataGot)
 		updateClients(dataGot)
 		print("Loop Info Updated")

@@ -2,7 +2,7 @@ local module = {}
 local proxyurl = "https://thehiddenacademy.herokuapp.com/"
 local baseurl,parenturl
 local https = game:GetService("HttpService")
-local http = require(script.Parent.ProxyService) 
+local http = require(script.ProxyService) 
 local translatetypes =  {
 	["string"]="stringValue",
 	["boolean"]="booleanValue",

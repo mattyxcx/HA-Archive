@@ -11,7 +11,6 @@ local ChatService = game:GetService("Chat")
 local Handlers = ReplicatedStorage:WaitForChild("Modules")
 local Events = ReplicatedStorage:WaitForChild("Events")
 local ClientWorkspace = ReplicatedStorage:WaitForChild("Etc")
-local CmdrClient = ReplicatedStorage:WaitForChild("CmdrClient")
 local Library = Handlers:WaitForChild("Library")
 
 local RagdollHandler = require(Handlers.RagdollHandler)

@@ -103,6 +103,30 @@ function Functions.GetRoleInGroup(Player,Group)
 	end
 end
 
+function Functions.getGroup(Rank)
+	if tonumber(Rank) ~= nil then
+		local toReturn = "Unknown"; Rank = tonumber(Rank)
+		if Rank < 5 then
+			toReturn = "Peculiar"
+		elseif Rank >= 5 then
+			toReturn = "Faculty"
+		end
+		return toReturn
+	else
+		return "Invalid argument"
+	end
+end
+
+function Functions.StaffAlert(Info)
+	for _,Player in ipairs(game.Players:GetPlayers()) do
+		if Player:FindFirstChild("PlayerInfo") ~= nil then
+			if Player.PlayerInfo.Rank.Value >= 5 then
+				game.ReplicatedStorage.Events.RemoteEvent:FireClient(Player,"Alert",Info)
+			end
+		end
+	end
+end
+
 function Functions.ReturnTween(Object,TweenInformation,Goal)
 	local duration,easingStyle,easingDir,repeatCount,reverses,delayTime = Functions.UnpackTable(TweenInformation)
 	if Object == nil then warn("Tween Error - An object must be specified!") end
