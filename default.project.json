@@ -1,0 +1,44 @@
+{
+  "name": "THA",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Modules": {
+        "$path": "src/handlers",
+        "$className": "Folder",
+
+        "Library": {
+          "$path": "src/handlers/library",
+          "$className": "Folder"
+        }
+      }
+    },
+
+    "ReplicatedFirst": {
+      "Client Setup": {
+        "$path": "src/replicatedfirst"
+      }
+    },
+
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+
+    "StarterGui": {
+      "UI Client": {
+        "$path": "src/ui"
+      }
+    }
+  }
+}

