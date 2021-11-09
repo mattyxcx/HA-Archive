@@ -185,7 +185,7 @@ function OnServerEvent(...)
 		c:FindFirstChild(tostring(p.Value)):Destroy()
 		p.Value = p.Value - 0.2
 		local nameSplit = string.split(Tool.Name,"|")
-		Tool.Name = nameSplit[1].. tostring((p.Value*100)).."%"
+		Tool.Name = nameSplit[1] .. "|" .. tostring((p.Value*100)).."%"
 	elseif Args[2] == "Client Ragdoll" then
 		if Args[3] == "Activate" then
 			RagdollHandler.ActivateRagdoll(Args[1].Character)
