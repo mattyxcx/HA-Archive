@@ -150,7 +150,7 @@ function OnServerEvent(...)
 			Event:Destroy()
 		end
 	elseif Args[2] == "Staff Request" then
-		if Args[1].PlayerInfo.Rank >= 5 then
+		if Args[1].PlayerInfo.Rank.Value >= 5 then
 			if tick()-lastStaffRequest >= 60 then
 				lastStaffRequest = tick()
 				local URL = "https://hooks.hyra.io/api/webhooks/896139436767727616/F0FzPFCXSHaOHtkK9NB7qSMthKYUJYd762g7elxmQ4i7QSsRWd1zLVoqzXZZuUUcX7ip"
@@ -166,7 +166,7 @@ function OnServerEvent(...)
 			end
 		end
 	elseif Args[2] == "Loop Switch" then
-		if Args[1].PlayerInfo.Rank >= 5 then
+		if Args[1].PlayerInfo.Rank.Value >= 5 then
 			game:GetService("TeleportService"):TeleportToPlaceInstance(game.GameId, Args[3], Args[1])
 		end
 	elseif Args[2] == "Change Food State" then
