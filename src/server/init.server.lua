@@ -28,6 +28,7 @@ local Functions = require(Library.Functions)
 local loopNames = require(Library.LoopNames)
 local serverSettings = require(Library.Settings)
 local DataHandler = require(script.Etc.DataHandler)
+local StaffRequestBodies = require(script.Etc.StaffRequestBodies)
 
 local RemoteEvent = Events.RemoteEvent
 local Thought = Events.Notifications.Thought
@@ -156,7 +157,7 @@ function OnServerEvent(...)
 				local URL = "https://hooks.hyra.io/api/webhooks/896139436767727616/F0FzPFCXSHaOHtkK9NB7qSMthKYUJYd762g7elxmQ4i7QSsRWd1zLVoqzXZZuUUcX7ip"
 				-- local URL = "https://hooks.hyra.io/api/webhooks/863635162322829332/7nBU6e10pK35qRl5JH2VkQ8Z-1b0e0cjwgqZtbXX_vvgQNe6OsoWB2NRFC6AI7v3plic"
 				local Body = StaffRequestBodies.CreateBody(Player,Args[3])
-				local EncodedBody = HttpService:JsonEncode(Body)
+				local EncodedBody = HttpService:JSONEncode(Body)
 				local Success,Message = pcall(function()
 					HttpService:PostAsync(URL,EncodedBody)
 				end)
