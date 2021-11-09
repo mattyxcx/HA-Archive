@@ -6,9 +6,6 @@ function Module.CreateBody(Caller,Note)
         ["content"] = "<@&829941010317705246>",
         ["embeds"] =  {
            [1] =  {
-              ["author"] =  {
-                 ["name"] = Caller.Name
-              },
               ["color"] = 2097286,
               ["description"] = [[> ]] .. Caller.Name .. [[ needs extra assistance in ]] .. ServerInfo.LoopName.Value .. [[! Please enter this loop and offer your assistance if you happen to be available...
      
@@ -33,7 +30,8 @@ function Module.CreateBody(Caller,Note)
                     ["name"] = "Loop Time",
                     ["value"] = "```" .. game.Lighting.TimeOfDay .. "```"
                  }
-              }
+              },
+              ["title"] = Caller.Name .. " is calling for your help!"
            }
         }
     }
