@@ -182,12 +182,10 @@ function OnServerEvent(...)
 		end
 		local p = Tool.p
 		local c = Tool.Cache
-		if tostring(p.Value) == "0.2" then
-			Tool:Destroy()
-			if Args[4] == "Food Consume" then ToolsHandler.GivePlayerTool(Player,{"Empty Plate"}) end
-		end
 		c:FindFirstChild(tostring(p.Value)):Destroy()
 		p.Value = p.Value - 0.2
+		local nameSplit = string.split(Tool.Name,"|")
+		Tool.Name = nameSplit[1].. tostring((p.Value*100)).."%"
 	elseif Args[2] == "Client Ragdoll" then
 		if Args[3] == "Activate" then
 			RagdollHandler.ActivateRagdoll(Args[1].Character)
