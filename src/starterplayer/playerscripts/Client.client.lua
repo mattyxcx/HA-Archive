@@ -125,7 +125,7 @@ function SetupInteractables()
 			end)
 		end
 	end
-	for a,b in ipairs(ClientWorkspace["Exclusive Areas"]:GetChildren()) do 
+	for a,b in ipairs(ClientWorkspace["Exclusive Areas"]:GetChildren()) do
 		if b:IsA("BasePart") then
 			if tonumber(b.Name) <= PlayerInfo.Rank.Value then
 				b.CanCollide = false
@@ -141,11 +141,15 @@ Player.Chatted:Connect(function(Message)
 		elseif Message:lower():sub(1,7) == "academy" then
 			Player.Character.HumanoidRootPart.CFrame = ClientWorkspace["Key Points"].academy.CFrame
 		elseif Message:lower():sub(1,5) == "rain" then
-			if game.ReplicatedStorage.Server.Rain.Value == true then
-				game.ReplicatedStorage.Server.Rain.Value = false
-			else
-				game.ReplicatedStorage.Server.Rain.Value = true
+			local condition = Message:lower():sub(7,8) local Val
+			if condition == nil then
+				Val = not game.ReplicatedStorage.Server.Rain.Value
+			elseif condition == "on" then
+				Val = true
+			elseif Message:lower():sub(7,9) == "off" then
+				Val = false
 			end
+			game.ReplicatedStorage.Server.Rain.Value = Val
 		end
 	end
 end)
