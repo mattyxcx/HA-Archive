@@ -33,6 +33,13 @@ local RagdollUpdated
 local LastRagdoll = tick()
 local RagdollCause = nil
 
+local Commands = {
+	["academy"] = "Academy/Front",
+	["kitchen"] = "Academy/Kitchen",
+	["dungeon"] = "Academy/Dungeon",
+	["testroom"] = "Other/Test Room",
+}
+
 function CharacterLoaded(C)
 	if C == nil then repeat wait() until Player.Character ~= nil C,Character = Player.Character,Player.Character end
 	if _Death ~= nil then Death() end -- Cleanup
@@ -136,11 +143,22 @@ end
 
 Player.Chatted:Connect(function(Message)
 	if Functions.IsInTable(serverSettings["Admins"],Player.UserId) then
-		if Message:lower():sub(1,8) == "testroom" then
-			Player.Character.HumanoidRootPart.CFrame = ClientWorkspace["Key Points"].testroom.CFrame
-		elseif Message:lower():sub(1,7) == "academy" then
-			Player.Character.HumanoidRootPart.CFrame = ClientWorkspace["Key Points"].academy.CFrame
-		elseif Message:lower():sub(1,5) == "rain" then
+		for Command,Path in pairs(Commands) do
+			if Message:lower():sub(1,#Command) == Command then
+				local pathTable = string.split(Path,"/"); local prvParent = nil
+				for index,value in ipairs(pathTable) do
+					local found
+					if prvParent == nil then
+						found = ClientWorkspace["Key Points"]:FindFirstChild(value)
+					else
+						found = prvParent:FindFirstChild(value)
+					end
+					if found ~= nil then prvParent = found else print("Unexpected error when finding path") end
+				end
+				Player.Character.HumanoidRootPart.CFrame = prvParent.CFrame
+			end
+		end
+		if Message:lower():sub(1,5) == "rain" then
 			local condition = Message:lower():sub(7,8) local Val
 			if condition == nil then
 				Val = not game.ReplicatedStorage.Server.Rain.Value
