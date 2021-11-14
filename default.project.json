@@ -6,12 +6,7 @@
     "ReplicatedStorage": {
       "Modules": {
         "$path": "src/handlers",
-        "$className": "Folder",
-
-        "Library": {
-          "$path": "src/handlers/library",
-          "$className": "Folder"
-        }
+        "$className": "Folder"
       }
     },
 
