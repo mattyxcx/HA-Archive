@@ -1,12 +1,8 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-
 local workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
-local ChatService = game:GetService("Chat")
 
 local Handlers = ReplicatedStorage:WaitForChild("Modules")
 local Events = ReplicatedStorage:WaitForChild("Events")
