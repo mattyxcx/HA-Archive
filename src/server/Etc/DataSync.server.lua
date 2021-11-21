@@ -1,18 +1,20 @@
 local DataHandler = require(script.Parent.DataHandler)
 local serverSettings = require(game.ReplicatedStorage.Modules.Library.Settings)
-
-if serverSettings["Server Information"]["Name"] == "" then repeat wait() until serverSettings["Server Information"]["Name"] ~= nil end
-if serverSettings["Server Information"]["Players"] == 0 then repeat wait() until serverSettings["Server Information"]["Players"] ~= 0 end
-local ServerName = serverSettings["Server Information"]["Name"]
-local JobId = serverSettings["Server Information"]["JobId"]
+local serverInformation = serverSettings["Server Information"]
+if serverInformation["Name"] == "" then repeat wait() until serverInformation["Name"] ~= nil end
+if serverInformation["Players"] == 0 then repeat wait() until serverInformation["Players"] ~= 0 end
+local ServerName = serverInformation["Name"]
+local JobId = serverInformation["JobId"]
 local shuttingDown = false
-local lastupdate = 0
+local lastUpdate = 0
+
+local DataStoreUrl = "https://firestore.googleapis.com/v1beta1/projects/thaexternaldata-33wzygh1aq/databases/(default)/documents"
 
 local prevValues = {0,0}
 
 function process(baseDict)
-	local ServerPlayers = serverSettings["Server Information"]["Players"]
-	local ServerStaff = serverSettings["Server Information"]["Staff"]
+	local ServerPlayers = serverInformation["Players"]
+	local ServerStaff = serverInformation["Staff"]
 	if baseDict["error"] == nil then
 		if baseDict["fields"] == nil then baseDict["fields"] = {} end
 		baseDict["fields"][JobId] = {
@@ -25,7 +27,7 @@ function process(baseDict)
 				}
 			}
 		}
-		DataHandler.Set("active-servers","all",baseDict)
+		DataHandler.Set(DataStoreUrl.."/active-servers/all",baseDict)
 		prevValues = {ServerPlayers,ServerStaff}
 	elseif baseDict["error"] ~= nil then
 		print("error",unpack(baseDict["error"]))
@@ -36,7 +38,7 @@ function close(baseDict)
 	if baseDict["error"] == nil then
 		if baseDict["fields"] == nil then baseDict["fields"] = {} end
 		baseDict["fields"][JobId] = nil
-		DataHandler.Set("active-servers","all",baseDict)
+		DataHandler.Set(DataStoreUrl.."/active-servers/all",baseDict)
 	elseif baseDict["error"] ~= nil then
 		print("error",baseDict["error"])
 	end
@@ -54,13 +56,13 @@ end
 
 game:BindToClose(function()
 	shuttingDown = true
-	close(DataHandler.Get("active-servers","all"))
+	close(DataHandler.Get(DataStoreUrl.."/active-servers/all"))
 end)
 
 while true do
-	if (tick() - lastupdate >= 60) and shuttingDown ~= true and {serverSettings["Server Information"]["Players"],serverSettings["Server Information"]["Staff"]} ~= prevValues then
-		lastupdate = tick()
-		local dataGot = DataHandler.Get("active-servers","all")
+	if (tick() - lastUpdate >= 60) and shuttingDown ~= true and {serverInformation["Players"],serverInformation["Staff"]} ~= prevValues then
+		lastUpdate = tick()
+		local dataGot = DataHandler.Get(DataStoreUrl.."/active-servers/all")
 		process(dataGot)
 		updateClients(dataGot)
 		print("Loop Info Updated")
