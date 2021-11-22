@@ -99,6 +99,11 @@ return {
 			  ["Name"] = "🌸 Goddess",
 			  ["Rank"] = 255
 		   }
-		}
+		},
+		["Groups"] = {
+			["Faculty"] = {6,7,8,9,12},
+			["Administration"] = {101,103,90,91,93},
+			["Oversight"] = {240,254,255},
+		},
 	},
 }
