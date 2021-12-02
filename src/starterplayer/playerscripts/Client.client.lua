@@ -6,6 +6,7 @@ local Lighting = game:GetService("Lighting")
 local workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local ChatService = game:GetService("Chat")
 
 local Handlers = ReplicatedStorage:WaitForChild("Modules")
@@ -24,6 +25,7 @@ local serverSettings = require(Library.Settings)
 
 local Player = Players.LocalPlayer
 local PlayerInfo = Player:WaitForChild("PlayerInfo")
+local Mouse = Player:GetMouse()
 
 local RemoteEvent = Events.RemoteEvent
 local ClientThought = Events.Notifications.ThoughtClient
@@ -141,7 +143,7 @@ function SetupInteractables()
 	end
 end
 
-Player.Chatted:Connect(function(Message)
+function onChat(Message)
 	if Functions.IsInTable(serverSettings["Admins"],Player.UserId) then
 		for Command,Path in pairs(Commands) do
 			if Message:lower():sub(1,#Command) == Command then
@@ -170,10 +172,11 @@ Player.Chatted:Connect(function(Message)
 			game.ReplicatedStorage.Server.Rain.Value = Val
 		end
 	end
-end)
+end
 
 ClientWorkspace.Parent = workspace
 Player.CharacterAdded:Connect(CharacterLoaded)
+Player.Chatted:Connect(onChat)
 DoorHandler.Setup(ClientWorkspace.Doors)
 SwitchHandler.Setup(ClientWorkspace.Switches)
 AlarmsHandler.Setup(ClientWorkspace.Alarms)
