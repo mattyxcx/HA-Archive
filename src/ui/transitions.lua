@@ -27,7 +27,7 @@ module.setupShow = function(ParentFrame)
             table.insert(returning,(TweenService:Create(Instance,TweenSettings,
                     {BackgroundTransparency = Instance.BackgroundTransparency,
                     TextStrokeTransparency = Instance.TextStrokeTransparency,
-                    TextTransparency = Instance.TextStrokeTransparency}
+                    TextTransparency = Instance.TextTransparency}
                 ))
             )
         end
