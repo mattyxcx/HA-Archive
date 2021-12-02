@@ -36,7 +36,7 @@
     },
 
     "StarterGui": {
-      "UI Client": {
+      "Client UI Handler": {
         "$path": "src/ui"
       }
     }
