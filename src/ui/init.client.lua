@@ -9,8 +9,16 @@ local Transitions = require(script.transitions)
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local Interfaces = script.Parent.HUD
-local QuickMenu = Interfaces["Quick Menu"]
+local QuickMenu = Interfaces["Quick Menu"].Main
 local tweens = {}
+
+--[[
+
+change the input listener so it listens to a parent frame (full screen sized) of the quick menu's input ended
+check the mouse position is not in the bounds of the quick menu
+go from there
+
+]]
 
 UserInputService.InputBegan:Connect(function(Input)
     if Input.UserInputType == Enum.UserInputType.MouseButton2 or Input.UserInputType == Enum.UserInputType.Touch then
