@@ -45,11 +45,11 @@ function processActivity(baseDict,targetDoc,Player)
 			prevTime = tonumber(baseDict["fields"][stringId]["integerValue"])
 			total = math.floor(prevTime + ((tick() - Activity[Player])/60))
 			baseDict["fields"][stringId]["integerValue"] = total
-			DataHandler.Set("player-activity",targetDoc,baseDict)
+			DataHandler.Patch("player-activity",targetDoc,baseDict)
 		else
 			total = math.floor(((tick() - Activity[Player])/60))
 			baseDict["fields"][stringId] = {["integerValue"] = total}
-			DataHandler.Set("player-activity",targetDoc,baseDict)
+			DataHandler.Patch("player-activity",targetDoc,baseDict)
 		end
 	elseif baseDict["error"] ~= nil then
 		print("error",baseDict["error"])
@@ -264,7 +264,7 @@ function PlayerAdded(Player)
 	Activity[Player] = tick()
 
 	if ActivityData == nil then repeat task.wait() until ActivityData ~= nil end;
-	if PlayerRank >= 100 then RemoteEvent:FireClient("Data Update",ActivityData) end
+	if PlayerRank >= 100 then RemoteEvent:FireClient(Player,"Data Update",ActivityData) end
 end
 
 function PlayerRemoving(Player)
@@ -287,7 +287,7 @@ function PlayerRemoving(Player)
 end
 
 function Setup()
-	workspace.Etc.Parent = game.ReplicatedStorage
+	if game.GameId ~= 2775218030 then workspace.Etc.Parent = game.ReplicatedStorage end
 	if identifier == "" then identifier = "Studio Session" end
 	serverSettings["Server Information"]["JobId"] = identifier
 	serverSettings["Server Information"]["Name"] = (loopNames["Adjective"][math.random(1,#loopNames["Adjective"])].." "..loopNames["Noun"][math.random(1,#loopNames["Noun"])])
