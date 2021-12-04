@@ -27,7 +27,7 @@ function process(baseDict)
 				}
 			}
 		}
-		DataHandler.Set(DataStoreUrl.."/active-servers/all",baseDict)
+		DataHandler.Patch(DataStoreUrl.."/active-servers/all",baseDict)
 		prevValues = {ServerPlayers,ServerStaff}
 	elseif baseDict["error"] ~= nil then
 		print("error",unpack(baseDict["error"]))
@@ -38,7 +38,7 @@ function close(baseDict)
 	if baseDict["error"] == nil then
 		if baseDict["fields"] == nil then baseDict["fields"] = {} end
 		baseDict["fields"][JobId] = nil
-		DataHandler.Set(DataStoreUrl.."/active-servers/all",baseDict)
+		DataHandler.Patch(DataStoreUrl.."/active-servers/all",baseDict)
 	elseif baseDict["error"] ~= nil then
 		print("error",baseDict["error"])
 	end
